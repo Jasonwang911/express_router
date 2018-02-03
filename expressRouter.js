@@ -1,4 +1,15 @@
 var url = require('url');
+var fs = require('fs');
+
+// 封装 res.send()的方法
+function changeRes(res) {
+	res.send = function(data) {
+		res.writeHead(200, {
+			'Content-Type': 'text-html; charset=utf-8'
+		});
+		res.end(data);
+	}
+}
 
 // 使用module.exports 暴露方法
 // 需要暴漏的方法
@@ -9,6 +20,8 @@ var Server = function() {
 	G._post = []; // post路由的数组
 
 	var app = function(req, res) {
+		// 挂载 res.end(); 的方法
+		changeRes(res)
 		// 获取路由
 		var pathname = url.parse(req.url).pathname;
 		// 获取请求方式
@@ -28,12 +41,12 @@ var Server = function() {
 				req.on('end', (err, chunk) => {
 					if (err) throw err;
 					console.log(postData);
+					fs.appendFile('postData.txt', postData + '\n', (error) => {
+						if (error) throw error;
+						console.log('写入postData数据成功');
+					});
 					req.body = postData;
 					G['_' + method][pathname](req, res);
-					// fs.appendFile('postData.txt', postData + '\n', (error) => {
-					// 	if (error) throw error;
-					// 	console.log('写入postData数据成功');
-					// });
 				});
 
 			} else {
