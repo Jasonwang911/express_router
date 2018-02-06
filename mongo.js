@@ -16,7 +16,7 @@ app.get('login', (req, res) => {
 	ejs.renderFile('view/form.ejs', {}, (err, data) => {
 		if (err) console.log(err);
 
-		res.end(data)
+		res.send(data)
 	});
 })
 
@@ -83,6 +83,35 @@ app.get('/edit', (req, res) => {
 			// 关闭数据库
 			db.close();
 		});
+	});
+});
+
+// 查
+app.get('/userList', (req, res) => {
+	MongoClient.connect(DBurl, (err, db) => {
+		if (err) console.log(err);
+		var list = [];
+		var result = db.collection('user').find();
+		result.each((error, doc) => {
+			console.log(doc);
+			if (error) {
+				console.log(error);
+			} else {
+				if (doc != null) {
+					list.push(doc)
+				} else {
+					// 获取数据完成，需要渲染数据
+					ejs.renderFile('./view/list.ejs', {
+						msg: list
+					}, (e, data) => {
+						if (e) console.log(e);
+						console.log(data)
+						res.send(data);
+					});
+					// console.log(list)
+				}
+			}
+		})
 	});
 });
 
