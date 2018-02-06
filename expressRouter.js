@@ -39,10 +39,10 @@ var Server = function() {
 					postData += chunk;
 				});
 				req.on('end', (err, chunk) => {
-					if (err) throw err;
+					if (err) console.log(err);
 					console.log(postData);
 					fs.appendFile('postData.txt', postData + '\n', (error) => {
-						if (error) throw error;
+						if (error) console.log(error);
 						console.log('写入postData数据成功');
 					});
 					req.body = postData;
